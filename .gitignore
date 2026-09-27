@@ -1,3 +1,8 @@
 *.http
 
+.air.toml
+tmp
+
 .env*
+
+*.md
