@@ -7,4 +7,5 @@ import (
 
 func InitMainRouter(router *gin.Engine, db *pgxpool.Pool) {
 	initAuthRouter(router, db)
+	initNotifRouter(router, db)
 }

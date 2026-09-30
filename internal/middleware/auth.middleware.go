@@ -18,6 +18,7 @@ func CheckToken(c *gin.Context) {
 			Success: false,
 			Msg:     "please login first",
 		})
+		c.Abort()
 		return
 	}
 	result := strings.Split(bearer, " ")
@@ -26,6 +27,7 @@ func CheckToken(c *gin.Context) {
 			Success: false,
 			Msg:     "invalid bearer token",
 		})
+		c.Abort()
 		return
 	}
 	if result[0] != "Bearer" {
@@ -33,6 +35,7 @@ func CheckToken(c *gin.Context) {
 			Success: false,
 			Msg:     "invalid bearer token",
 		})
+		c.Abort()
 		return
 	}
 	var token pkg.JwtClaims

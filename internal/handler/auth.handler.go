@@ -154,3 +154,48 @@ func (a *AuthHandler) ChangePassword(c *gin.Context) {
 		Msg:     "Password berhasil diganti",
 	})
 }
+
+func (ah *AuthHandler) ChangeProfileUser(ctx *gin.Context) {
+	var body dto.ChangeProfileUser
+
+	if err := ctx.ShouldBindWith(&body, binding.FormPost); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Success: false,
+			Msg:     "invalid request body",
+		})
+		return
+	}
+
+	val, exists := ctx.Get("token")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.Response{
+			Success: false,
+			Msg:     "unauthorized",
+		})
+		return
+	}
+
+	claims, ok := val.(pkg.JwtClaims)
+
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Success: false,
+			Msg:     "terjadi kesalahan sistem",
+		})
+		return
+	}
+
+	if err := ah.as.ChangeUserProfile(ctx.Request.Context(), claims.Id, body.Name, body.Avatar_url, body.Bio, body.Location, body.Job, body.Workplace); err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Success: false,
+			Msg:     "terjadi kesalahan sistem",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Success: true,
+		Data:    body,
+		Msg:     "Profile User berhasil diganti",
+	})
+}

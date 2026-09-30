@@ -13,7 +13,8 @@ func initAuthRouter(r *gin.Engine, db *pgxpool.Pool) {
 	authRouter := r.Group("/auth")
 
 	ar := repo.NewAuthRepo(db)
-	as := service.NewAuthService(ar)
+	nr := repo.NewNotifRepo(db)
+	as := service.NewAuthService(ar, nr)
 	ah := handler.NewAuthHandler(as)
 
 	// authRouter.POST("pwd", func(ctx *gin.Context) {
@@ -90,4 +91,5 @@ func initAuthRouter(r *gin.Engine, db *pgxpool.Pool) {
 	authRouter.POST("register", ah.Register)
 	authRouter.POST("", ah.Login)
 	authRouter.POST("/change-password", middleware.CheckToken, ah.ChangePassword)
+	authRouter.PATCH("/change-profile", middleware.CheckToken, ah.ChangeProfileUser)
 }
