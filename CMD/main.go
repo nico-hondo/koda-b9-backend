@@ -8,9 +8,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	_ "github.com/nico-hondo/CMD/docs"
 	"github.com/nico-hondo/internal/config"
 	"github.com/nico-hondo/internal/router"
 )
+
+// @title           Koda B9 Backend
+// @version         1.0
+// @description     Completed Eventhub backend during Koda Bootcamp
+// @host            localhost:8000
+// @BasePath        /
+// @securityDefinitions.apikey  BearerToken
+// @in                          header
+// @name                        Authorization
+// @description                 Bearer Token used as identity for accessing backend
 
 func main() {
 	// load env seawal mungkin
@@ -35,11 +46,23 @@ func main() {
 
 	log.Println("Database Ready")
 
+	// connect ke Redis
+	rdb := config.NewRdbConfig(os.Getenv("RDB_USER"), os.Getenv("RDB_PASS"), os.Getenv("RDB_ADDR"), os.Getenv("RDB_PORT"))
+	redisClient := rdb.ConnectRdb()
+
+	defer redisClient.Close()
+
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Println("Redis is not ready\nReason: ", err.Error())
+		return
+	}
+	log.Println("Redis Ready")
+
 	// Generate gin Engine
 	r := gin.Default()
 
 	// Deklarasi Router (endpoint & method HTTP)
-	router.InitMainRouter(r, pool)
+	router.InitMainRouter(r, pool, redisClient)
 
 	r.Run(fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")))
 }

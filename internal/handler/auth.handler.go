@@ -23,13 +23,23 @@ func NewAuthHandler(as *service.AuthService) *AuthHandler {
 	}
 }
 
+// RegistrationAccount godoc
+// @Summary      Register an Account
+// @Description  Regist Acc from body
+// @Tags         register
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.RegisterRequest  true  "body to register"
+// @Success      201   {object}  dto.Response
+// @Failure      500   {object}  dto.ErrorResponse
+// @Router       /auth/register [post]
 func (ah *AuthHandler) Register(ctx *gin.Context) {
 	var body dto.RegisterRequest
 
 	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
 		log.Println(err.Error())
 
-		ctx.JSON(http.StatusInternalServerError, dto.Response{
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Success: false,
 			Msg:     "terjadi kesalahan error",
 		})
@@ -39,7 +49,7 @@ func (ah *AuthHandler) Register(ctx *gin.Context) {
 	// gunakan service
 	if err := ah.as.CreateUser(ctx.Request.Context(), body); err != nil {
 		log.Println(err.Error())
-		ctx.JSON(http.StatusInternalServerError, dto.Response{
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Success: false,
 			Msg:     "terjadi kesalahan server",
 		})
@@ -53,6 +63,18 @@ func (ah *AuthHandler) Register(ctx *gin.Context) {
 	})
 }
 
+// SignInAccount godoc
+// @Summary		Login an Account
+// @Description	Login Acc from body
+// @Tags			login
+// @Accept			json
+// @Produce		json
+// @Param			body	body		dto.LoginRequest	true	"body to login"
+// @Success		200		{object}	dto.Response
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		500		{object}	dto.ErrorResponse
+// @Router			/auth	[post]
 func (a *AuthHandler) Login(c *gin.Context) {
 	var body dto.LoginRequest
 	if err := c.ShouldBindWith(&body, binding.JSON); err != nil {

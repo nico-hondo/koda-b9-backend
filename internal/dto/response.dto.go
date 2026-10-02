@@ -5,3 +5,9 @@ type Response struct {
 	Data    any
 	Msg     string
 }
+
+type ErrorResponse struct {
+	Success bool
+	Data    any
+	Msg     string
+}
