@@ -15,4 +15,6 @@ func InitMainRouter(router *gin.Engine, db *pgxpool.Pool, redisClient *redis.Cli
 	initAuthRouter(router, db)
 	initNotifRouter(router, db, redisClient)
 	initTestimoniRouter(router, db)
+	initEventsRouter(router, db)
+	initCommunityRouter(router, db)
 }
