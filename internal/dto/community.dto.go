@@ -57,3 +57,10 @@ type PopularCommunityResponse struct {
 	Total_Members       int       `json:"total_members"`
 	TotalUpcomingEvents int       `json:"total_upcoming_events"`
 }
+
+type JoinCommunityResponse struct {
+	Community_Id   int       `json:"community_id"`
+	User_Id        int       `json:"user_id"`
+	Community_role string    `json:"community_role"`
+	Joined_at      time.Time `json:"joined_at"`
+}

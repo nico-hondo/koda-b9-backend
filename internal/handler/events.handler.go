@@ -21,6 +21,17 @@ func NewEventsHandler(es *service.EventsService) *EventsHandler {
 	}
 }
 
+// GetEvents godoc
+// @Summary      Get list of events
+// @Description  Get list of events with optional filter parameters
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Param        filter  query     dto.EventFilterParam  false  "Filter parameters"
+// @Success      200     {object}  dto.Response
+// @Failure      400     {object}  dto.ErrorResponse
+// @Failure      500     {object}  dto.ErrorResponse
+// @Router       /events [get]
 func (eh *EventsHandler) GetEvents(ctx *gin.Context) {
 	var filter dto.EventFilterParam
 	if err := ctx.ShouldBindQuery(&filter); err != nil {
@@ -48,6 +59,17 @@ func (eh *EventsHandler) GetEvents(ctx *gin.Context) {
 
 }
 
+// GetEventByIdHandler godoc
+// @Summary      Get event detail by ID
+// @Description  Get detailed information of a specific event by its ID
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Event ID"
+// @Success      200  {object}  dto.Response
+// @Failure      400  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /events/{id} [get]
 func (eh *EventsHandler) GetEventByIdHandler(ctx *gin.Context) {
 	evId := ctx.Param("id")
 
@@ -75,6 +97,19 @@ func (eh *EventsHandler) GetEventByIdHandler(ctx *gin.Context) {
 	})
 }
 
+// JoinEventHandler godoc
+// @Summary      Join or unjoin an event
+// @Description  Join or leave an event by event ID (requires authentication)
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Security     BearerToken
+// @Param        id   path      int  true  "Event ID"
+// @Success      200  {object}  dto.Response
+// @Failure      400  {object}  dto.ErrorResponse
+// @Failure      401  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /events/{id} [post]
 func (eh *EventsHandler) JoinEventHandler(ctx *gin.Context) {
 	evIdParam := ctx.Param("id")
 
@@ -124,6 +159,15 @@ func (eh *EventsHandler) JoinEventHandler(ctx *gin.Context) {
 	})
 }
 
+// GetUpcomingEventHandler godoc
+// @Summary      Get upcoming events
+// @Description  Retrieve a list of upcoming events
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  dto.Response
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /events/upcoming [get]
 func (eh *EventsHandler) GetUpcomingEventHandler(ctx *gin.Context) {
 	// Panggil layer Service
 	events, err := eh.es.GetUpcomingEventService(ctx.Request.Context())
@@ -143,6 +187,17 @@ func (eh *EventsHandler) GetUpcomingEventHandler(ctx *gin.Context) {
 	})
 }
 
+// GetMyEventsHandler godoc
+// @Summary      Get user's joined events
+// @Description  Get list of events joined by the authenticated user
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Security     BearerToken
+// @Success      200  {object}  dto.Response
+// @Failure      401  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /events/myevents [get]
 func (eh *EventsHandler) GetMyEventsHandler(ctx *gin.Context) {
 	val, exists := ctx.Get("token")
 	if !exists {

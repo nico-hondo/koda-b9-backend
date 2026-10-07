@@ -19,7 +19,7 @@ func NewCommunityRepo(db *pgxpool.Pool) *CommunityRepo {
 	}
 }
 
-func (cr *CommunityRepo) GetCommunityRepo(ctx context.Context, filter dto.CommunityFilterParam, userId int) ([]dto.PopularCommunityResponse, error) {
+func (cr *CommunityRepo) GetCommunityRepo(ctx context.Context, filter dto.CommunityFilterParam) ([]dto.PopularCommunityResponse, error) {
 	sql := `
 		SELECT 
 			c.id, 
@@ -104,13 +104,12 @@ func (cr *CommunityRepo) GetCommunityRepo(ctx context.Context, filter dto.Commun
 	return data, nil
 }
 
-func (cr *CommunityRepo) GetCommunityByIDRepo(ctx context.Context, communityID, userID int) (dto.CommunityDetailResponse, error) {
+func (cr *CommunityRepo) GetCommunityByIDRepo(ctx context.Context, communityID int) (dto.CommunityDetailResponse, error) {
 	query := `
 		SELECT 
 			c.id, c.name, c.slug, c.description, c.category, c.image_url, c.location, c.is_active, c.created_at,
 			COALESCE(cm.total_members, 0) AS total_members,
-			COALESCE(ue.total_upcoming_events, 0) AS total_upcoming_events,
-			(uj.user_id IS NOT NULL) AS is_joined
+			COALESCE(ue.total_upcoming_events, 0) AS total_upcoming_events
 		FROM communities c
 		LEFT JOIN (
 			SELECT community_id, COUNT(user_id) AS total_members 
@@ -123,13 +122,11 @@ func (cr *CommunityRepo) GetCommunityByIDRepo(ctx context.Context, communityID, 
 			WHERE start_time >= NOW() 
 			GROUP BY community_id
 		) ue ON c.id = ue.community_id
-		LEFT JOIN community_members uj 
-			ON c.id = uj.community_id AND uj.user_id = $2
 		WHERE c.id = $1
 	`
 
 	var detail dto.CommunityDetailResponse
-	err := cr.db.QueryRow(ctx, query, communityID, userID).Scan(
+	err := cr.db.QueryRow(ctx, query, communityID).Scan(
 		&detail.ID,
 		&detail.Name,
 		&detail.Slug,
@@ -141,7 +138,6 @@ func (cr *CommunityRepo) GetCommunityByIDRepo(ctx context.Context, communityID, 
 		&detail.CreatedAt,
 		&detail.TotalMembers,
 		&detail.TotalUpcomingEvents,
-		&detail.IsJoined,
 	)
 
 	if err != nil {
@@ -247,3 +243,22 @@ func (cr *CommunityRepo) GetPopularCommunity(ctx context.Context) ([]dto.Popular
 
 	return data, nil
 }
+
+// func (cr *CommunityRepo) JoinCommunity(ctx context.Context, userId, community_id int) (dto.JoinCommunityResponse, error){
+// 	checkJoin := `
+// 		SELECT
+// 			c.name,
+// 			c.description,
+// 			(cm.user_id IS NOT NULL) AS is_joined
+// 		FROM communities c
+// 		LEFT JOIN community_members cm
+// 			ON c.id = cm.community_id AND cm.user_id = $2
+// 		WHERE c.id = $1
+// 	`
+
+// 	var result dto.JoinCommunityResponse
+
+// 	cr.db.QueryRow(ctx, checkJoin, community_id, userId).Scan(
+// 		&result.Community
+// 	)
+// }

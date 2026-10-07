@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/nico-hondo/internal/dto"
 	"github.com/nico-hondo/internal/repo"
@@ -60,7 +61,7 @@ func (ns *NotifService) GetAllNotifbyId(ctx context.Context, userId int) ([]dto.
 	if str, err := json.Marshal(data); err != nil {
 		log.Println("stringify error\nreason: ", err.Error())
 	} else {
-		if err := ns.rdb.Set(ctx, key, string(str), 0).Err(); err != nil {
+		if err := ns.rdb.Set(ctx, key, string(str), 10*time.Minute).Err(); err != nil {
 			log.Println("redis set error\nreason: ", err.Error())
 		}
 	}

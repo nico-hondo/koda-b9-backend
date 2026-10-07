@@ -6,3 +6,5 @@ tmp
 .env*
 
 production-sequence.md
+
+Dockerfile

@@ -8,8 +8,8 @@ type Testimoni struct {
 	Comment    string    `json:"comment"`
 	Created_At time.Time `json:"created_at"`
 	Name       string    `json:"name"`
-	Job        string    `json:"job"`
-	Workplace  string    `json:"workplace"`
+	Job        *string   `json:"job"`
+	Workplace  *string   `json:"workplace"`
 }
 
 type NewTestimoni struct {

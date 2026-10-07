@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/nico-hondo/internal/dto"
 	apperror "github.com/nico-hondo/internal/error"
 	"github.com/nico-hondo/internal/service"
@@ -26,7 +27,7 @@ func NewAuthHandler(as *service.AuthService) *AuthHandler {
 // RegistrationAccount godoc
 // @Summary      Register an Account
 // @Description  Regist Acc from body
-// @Tags         register
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        body  body      dto.RegisterRequest  true  "body to register"
@@ -66,15 +67,15 @@ func (ah *AuthHandler) Register(ctx *gin.Context) {
 // SignInAccount godoc
 // @Summary		Login an Account
 // @Description	Login Acc from body
-// @Tags			login
-// @Accept			json
+// @Tags		Auth
+// @Accept		json
 // @Produce		json
-// @Param			body	body		dto.LoginRequest	true	"body to login"
+// @Param		body	body		dto.LoginRequest	true	"body to login"
 // @Success		200		{object}	dto.Response
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse
 // @Failure		500		{object}	dto.ErrorResponse
-// @Router			/auth	[post]
+// @Router		/auth	[post]
 func (a *AuthHandler) Login(c *gin.Context) {
 	var body dto.LoginRequest
 	if err := c.ShouldBindWith(&body, binding.JSON); err != nil {
@@ -117,9 +118,39 @@ func (a *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// ChangePassword membutuhkan user sudah login (dipasang di belakang
-// middleware.CheckToken). Claims JWT-nya diambil dari context dengan key
-// "token" — persis seperti yang di-set oleh CheckToken lewat c.Set("token", token).
+func (h *AuthHandler) LogoutHandler(ctx *gin.Context) {
+	// Ambil token & claims dari gin context (disimpan oleh AuthMiddleware)
+	tokenString, _ := ctx.Get("token")
+	claims, _ := ctx.Get("claims")
+
+	err := h.as.Logout(ctx.Request.Context(), tokenString.(string), claims.(jwt.MapClaims))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to logout",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Successfully logged out",
+	})
+}
+
+// ChangePassword godoc
+// @Summary      Change Password User
+// @Description  Change password for logged-in user
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Security     BearerToken
+// @Param        request  body      dto.ChangePasswordRequest  true  "Data Password Baru"
+// @Success      200      {object}  dto.Response
+// @Failure      400      {object}  dto.Response
+// @Failure      401      {object}  dto.Response
+// @Failure      500      {object}  dto.Response
+// @Router       /auth/change-password [patch]
 func (a *AuthHandler) ChangePassword(c *gin.Context) {
 	var body dto.ChangePasswordRequest
 	if err := c.ShouldBindWith(&body, binding.JSON); err != nil {
@@ -177,6 +208,19 @@ func (a *AuthHandler) ChangePassword(c *gin.Context) {
 	})
 }
 
+// ChangeProfileUser godoc
+// @Summary      Change Profile User
+// @Description  Update user profile details using Form Data
+// @Tags         Auth
+// @Accept       mpfd
+// @Produce      json
+// @Security     BearerToken
+// @Param        body  body      dto.ChangeProfileUser  true  "Profile Data"
+// @Success      200   {object}  dto.Response
+// @Failure      400   {object}  dto.Response
+// @Failure      401   {object}  dto.Response
+// @Failure      500   {object}  dto.Response
+// @Router       /auth/change-profile [patch]
 func (ah *AuthHandler) ChangeProfileUser(ctx *gin.Context) {
 	var body dto.ChangeProfileUser
 

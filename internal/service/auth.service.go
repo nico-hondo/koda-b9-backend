@@ -3,25 +3,31 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/nico-hondo/internal/dto"
 	apperror "github.com/nico-hondo/internal/error"
 	"github.com/nico-hondo/internal/model"
 	"github.com/nico-hondo/internal/repo"
 	"github.com/nico-hondo/pkg"
+	"github.com/redis/go-redis/v9"
 )
 
 type AuthService struct {
-	ar *repo.AuthRepo
-	nr *repo.NotifRepo
+	ar  *repo.AuthRepo
+	nr  *repo.NotifRepo
+	rdb *redis.Client
 }
 
-func NewAuthService(ar *repo.AuthRepo, nr *repo.NotifRepo) *AuthService {
+func NewAuthService(ar *repo.AuthRepo, nr *repo.NotifRepo, rdb *redis.Client) *AuthService {
 	return &AuthService{
-		ar: ar,
-		nr: nr,
+		ar:  ar,
+		nr:  nr,
+		rdb: rdb,
 	}
 }
 
@@ -88,6 +94,29 @@ func (as *AuthService) Login(ctx context.Context, body dto.LoginRequest) (string
 	claims := pkg.NewJwtClaims(acc.Id, acc.Role)
 
 	return claims.GenToken()
+}
+
+func (as *AuthService) Logout(ctx context.Context, tokenString string, claims jwt.MapClaims) error {
+	var expiration time.Duration
+	if exp, ok := claims["exp"].(float64); ok {
+		expTime := time.Unix(int64(exp), 0)
+		expiration = time.Until(expTime)
+	} else {
+		expiration = 24 * time.Hour
+	}
+
+	if expiration <= 0 {
+		return nil
+	}
+
+	key := fmt.Sprintf("nicohondo:blacklist:%s", tokenString)
+
+	err := as.rdb.Set(ctx, key, "blacklisted", expiration).Err()
+	if err != nil {
+		return fmt.Errorf("failed to blacklist token: %w", err)
+	}
+
+	return nil
 }
 
 func (as *AuthService) ChangePassword(ctx context.Context, userID int, oldPassword, newPassword string) error {

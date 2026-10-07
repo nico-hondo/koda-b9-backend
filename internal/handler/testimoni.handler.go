@@ -21,6 +21,15 @@ func NewTestimoniHandler(ts *service.TestimoniService) *TestimoniHandler {
 	}
 }
 
+// GetAllTestimony godoc
+// @Summary      Get all testimonies
+// @Description  Retrieve a list of all user testimonies
+// @Tags         Testimonies
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  dto.Response
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /testimony [get]
 func (th *TestimoniHandler) GetAllTestimony(ctx *gin.Context) {
 	testimonies, err := th.ts.GetTestimoniService(ctx.Request.Context())
 	if err != nil {
@@ -39,6 +48,19 @@ func (th *TestimoniHandler) GetAllTestimony(ctx *gin.Context) {
 	})
 }
 
+// CreateTestimony godoc
+// @Summary      Create a new testimony
+// @Description  Submit a new user testimony (requires authentication)
+// @Tags         Testimonies
+// @Accept       json
+// @Produce      json
+// @Security     BearerToken
+// @Param        body  body      dto.NewTestimoni  true  "Testimony Payload"
+// @Success      201   {object}  dto.Response
+// @Failure      400   {object}  dto.ErrorResponse
+// @Failure      401   {object}  dto.ErrorResponse
+// @Failure      500   {object}  dto.ErrorResponse
+// @Router       /testimony/create [post]
 func (th *TestimoniHandler) CreateTestimony(ctx *gin.Context) {
 	var body dto.NewTestimoni
 	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {

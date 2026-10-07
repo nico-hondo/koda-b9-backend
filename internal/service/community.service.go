@@ -20,8 +20,8 @@ func NewCommunityService(cr *repo.CommunityRepo, nr *repo.NotifRepo) *Communitie
 	}
 }
 
-func (cs *CommunitiesService) GetCommunityService(ctx context.Context, filter dto.CommunityFilterParam, userId int) ([]dto.PopularCommunityResponse, error) {
-	communities, err := cs.cr.GetCommunityRepo(ctx, filter, userId)
+func (cs *CommunitiesService) GetCommunityService(ctx context.Context, filter dto.CommunityFilterParam) ([]dto.PopularCommunityResponse, error) {
+	communities, err := cs.cr.GetCommunityRepo(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -29,13 +29,13 @@ func (cs *CommunitiesService) GetCommunityService(ctx context.Context, filter dt
 	return communities, nil
 }
 
-func (cs *CommunitiesService) GetCommunityDetailService(ctx context.Context, communityID, userID int) (dto.CommunityDetailResponse, error) {
+func (cs *CommunitiesService) GetCommunityDetailService(ctx context.Context, communityID int) (dto.CommunityDetailResponse, error) {
 	if communityID <= 0 {
 		return dto.CommunityDetailResponse{}, errors.New("ID komunitas tidak valid")
 	}
 
 	// 1. Ambil data detail & statistik komunitas
-	detail, err := cs.cr.GetCommunityByIDRepo(ctx, communityID, userID)
+	detail, err := cs.cr.GetCommunityByIDRepo(ctx, communityID)
 	if err != nil {
 		return dto.CommunityDetailResponse{}, err
 	}

@@ -2,28 +2,50 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/nico-hondo/internal/dto"
 	"github.com/nico-hondo/internal/model"
 	"github.com/nico-hondo/internal/repo"
+	"github.com/redis/go-redis/v9"
 )
 
 type EventsService struct {
-	er *repo.EventsRepo
-	nr *repo.NotifRepo
+	er  *repo.EventsRepo
+	nr  *repo.NotifRepo
+	rdb *redis.Client
 }
 
-func NewEventsService(er *repo.EventsRepo, nr *repo.NotifRepo) *EventsService {
+func NewEventsService(er *repo.EventsRepo, nr *repo.NotifRepo, rdb *redis.Client) *EventsService {
 	return &EventsService{
-		er: er,
-		nr: nr,
+		er:  er,
+		nr:  nr,
+		rdb: rdb,
 	}
 }
 
 func (es *EventsService) GetEventsService(ctx context.Context, filter dto.EventFilterParam) ([]dto.EventsResponse, error) {
+	key := "nicohondo:events"
+
+	if val, err := es.rdb.Get(ctx, key).Result(); err != nil {
+		if errors.Is(err, redis.Nil) {
+			log.Println("key does not exist")
+		} else {
+			log.Println(err.Error())
+		}
+	} else {
+		var events []dto.EventsResponse
+		if err := json.Unmarshal([]byte(val), &events); err != nil {
+			log.Println("parse error\nreason: ", err.Error())
+		} else {
+			return events, nil
+		}
+	}
+
 	if filter.Sort == "" {
 		filter.Sort = "upcoming"
 	}
@@ -31,6 +53,14 @@ func (es *EventsService) GetEventsService(ctx context.Context, filter dto.EventF
 	events, err := es.er.GetEventsRepo(ctx, filter)
 	if err != nil {
 		return nil, err
+	}
+
+	if str, err := json.Marshal(events); err != nil {
+		log.Println("stringify error\nreason: ", err.Error())
+	} else {
+		if err := es.rdb.Set(ctx, key, string(str), 10*time.Minute).Err(); err != nil {
+			log.Println("redis set error\nreason: ", err.Error())
+		}
 	}
 
 	return events, nil
