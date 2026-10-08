@@ -2,6 +2,7 @@
 
 
 [![License MIT](https://img.shields.io/badge/LICENSE-MIT-05a815?style=flat&logo=opensourceinitiative&logoColor=8fcf95)](https://opensource.org/license/mit)
+[![Status](https://img.shields.io/badge/Status-In%20Development-orange)](#)
 
 > Welcome to the **EventHub Backend API** repository. This service powers the EventHub platform, providing robust RESTful APIs designed for seamless integration with the EventHub Frontend application.
 
@@ -15,8 +16,6 @@
 [![Swagger](https://img.shields.io/badge/Swagger-latest-blue?logo=swagger)](https://github.com/swaggo/swag)
 
 <br/>
-
----
 
 ## 🚀 Features
 > * Authentication (`/api/auth`)
@@ -52,8 +51,6 @@
 > For Complete documentation visit `/swagger/index.html`
 
 <br/>
-
----
 
 ## 📄 License
 >This project is licensed under the **MIT License** and part of the **Koda Academy** curriculum and is intended for demonstration and portfolio purposes.
