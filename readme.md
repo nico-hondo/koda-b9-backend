@@ -1,123 +1,63 @@
-# EventHub - Backend API Services
+# Eventhub - Backend Service API <image src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/go.png" width="25px">
 
-[![Go Standard Library](https://img.shields.io/badge/Language-Go-00ADD8?style=flat&logo=go)](https://golang.org/)
-[![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2F%20Clean%20Architecture-blue)](#project-architecture)
-[![Status](https://img.shields.io/badge/Status-In%20Development-orange)](#)
 
-Welcome to the **EventHub Backend API** repository. This service powers the EventHub platform, providing robust RESTful APIs designed for seamless integration with the EventHub Frontend application.
+[![License MIT](https://img.shields.io/badge/LICENSE-MIT-05a815?style=flat&logo=opensourceinitiative&logoColor=8fcf95)](https://opensource.org/license/mit)
 
-The core service manages authentication, events management, community interactions, notifications, and user/organizer administration.
+> Welcome to the **EventHub Backend API** repository. This service powers the EventHub platform, providing robust RESTful APIs designed for seamless integration with the EventHub Frontend application.
 
----
+> The core service manages authentication, events management, community interactions, notifications, and user/organizer administration.
 
-## 🛠 Project Architecture
+## Tech Stack
+[![Golang](https://img.shields.io/badge/GO-1.27.1-blue?logo=go)](https://go.dev/)
+[![Gin Gonic](https://img.shields.io/badge/Gin_Gonic-1.12.0-blue?logo=gin&logoColor=orange)](https://gin-gonic.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.15-blue?logo=postgresql)](https://hub.docker.com/_/postgres)
+[![Redis](https://img.shields.io/badge/Redis-latest-blue?logo=redis)](https://hub.docker.com/_/redis)
+[![Swagger](https://img.shields.io/badge/Swagger-latest-blue?logo=swagger)](https://github.com/swaggo/swag)
 
-This project strictly adheres to a **Modular / Layered Architecture** pattern to ensure maintainability, scalability, and loose coupling between components.
-
-```text
-internal/
-├── dto/         # Data Transfer Objects & Request/Response Validation
-├── handler/     # HTTP Request Handlers / Controllers
-├── model/       # Database Entities & Models
-├── repo/        # Database Access Layer (Repositories)
-├── router/      # API Route definitions & Middleware wiring
-└── service/     # Core Business Logic Layer
-```
+<br/>
 
 ---
 
-## 🚀 Features & API Endpoints
-
-All API endpoints are documented below grouped by functional domain.
-
-### 🔑 Authentication & Security (`/api/v1/auth`)
-* `POST /auth/register` — Register a new user account.
-* `POST /auth/login` — Authenticate user and issue session token/JWT.
-* `POST /auth/logout` — Revoke active token/session (Blacklist / Whitelist mechanism).
-* `POST /auth/forgot-password` — Request a password reset link or OTP.
-* `POST /auth/reset-password` — Create a new password following a reset request.
-
-### 🎟️ Events Management (`/api/v1/events`)
-* `GET /events` — Retrieve event list with support for search keywords and category filters.
-* `GET /events/:id` — Get detailed information about a specific event.
-* `GET /events/upcoming` — Fetch upcoming featured/trending events.
-* `GET /events/my-events` — Get events created or managed by the authenticated user.
-* `POST /events` — Create a new event (Organizer/Admin).
-* `PUT /events/:id` — Edit an existing event details.
-* `POST /events/:id/join` — Join/Register for an event.
-* `DELETE /events/:id/leave` — Cancel participation / Leave an event.
-
-### 👥 Communities (`/api/v1/communities`)
-* `GET /communities` — Retrieve community list with search and filter parameters.
-* `GET /communities/popular` — Get top/popular communities based on activity or member count.
-* `GET /communities/:id` — Get community detail and info.
-* `GET /communities/:id/members` — Fetch member list of a specific community.
-* `POST /communities/:id/join` — Join a community.
-* `DELETE /communities/:id/leave` — Leave a community.
-
-### 👤 User Profile & Settings (`/api/v1/users`)
-* `GET /users/profile` — Fetch current user's profile details.
-* `PUT /users/profile` — Update user profile details (Name, Bio, Avatar, etc.).
-* `PUT /users/change-password` — Change password for authenticated users.
-
-### 💬 Testimonials & Feedback (`/api/v1/testimonies`)
-* `GET /testimonies` — Get testimonials submitted by users.
-* `POST /testimonies` — Submit or update a user testimonial.
-
-### 🔔 Notifications (`/api/v1/notifications`)
-* `GET /notifications` — Fetch all notifications for the authenticated user.
-
-### 📊 Dashboards (`/api/v1/dashboard`)
-* `GET /dashboard/organizer` — Get organizer metrics, statistics, and information.
-* `GET /dashboard/admin` — Get platform-wide administrative metrics and control information.
-
----
-
-## 💻 Tech Stack & Standards
-
-* **Language:** Go (Golang)
-* **Naming Conventions:** All functions, methods, and variables strictly follow standard **English** naming conventions.
-* **Architecture:** Modular Layered Architecture (Handler - Service - Repository Pattern).
-
----
+## 🚀 Features
+> * Authentication (`/api/auth`)
+> * User Profiles (`/api/users`)
+> * Events Management (`/api/events`)
+> * Community Management (`/api/community`)
+> * Testimonials & Feedback (`/api/testimonies`)
+> * Notifications (`/api/notifications`)
+> * Dashboards (`/api/dashboard`)
 
 ## ⚡ Getting Started
-
-### Prerequisites
-* Go 1.20 or higher installed.
-* PostgreSQL (or configured database instance).
-
 ### Installation & Run
 
-1. **Clone the repository:**
+1. **Clone The Repository :**
    ```bash
-   git clone https://github.com/your-username/eventhub-backend.git
-   cd eventhub-backend
+   $ git clone https://github.com/nico-hondo/koda-b9-backend.git
+   cd koda-b9-backend
    ```
-
-2. **Configure Environment Variables:**
-   Copy `.env.example` to `.env` and fill in your DB credentials and JWT secret.
+2. **Configure The Environment :**
+   > Copy `.env.example` to `.env` and fill in your DB credentials and JWT secret.
    ```bash
-   cp .env.example .env
+   $ cp .env.example .env
    ```
-
-3. **Install dependencies:**
+3. **Install Dependencies :**
    ```bash
-   go mod download
+   $ go mod download
    ```
-
-4. **Run the Application:**
+4. **Run The Application :**
    ```bash
-   go run main.go
-   ```
+   $ go run main.go
 
----
+### Documentation
+> For Complete documentation visit `/swagger/index.html`
 
-## 🔗 Frontend Integration
-
-This repository serves as the backend engine for the **EventHub Frontend**. Ensure your frontend configuration points its base API URL to this backend server (`http://localhost:8000/api/v1` or configured port).
+<br/>
 
 ---
 
 ## 📄 License
-This project is part of the **Koda Academy** curriculum and is intended for demonstration and portfolio purposes.
+>This project is licensed under the **MIT License** and part of the **Koda Academy** curriculum and is intended for demonstration and portfolio purposes.
+
+---
+## 🔗 Frontend Integration
+>This repository serves as the backend engine for the **EventHub Frontend**. Ensure your frontend configuration points its base API URL to this backend server [Frontend - Eventhub](https://github.com/nico-hondo/eventhub-app.git)

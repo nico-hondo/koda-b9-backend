@@ -5,6 +5,7 @@ tmp
 
 .env*
 
-production-sequence.md
+*.md
+!readme.md
 
 Dockerfile
