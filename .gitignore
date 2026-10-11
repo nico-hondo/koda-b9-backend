@@ -7,5 +7,3 @@ tmp
 
 *.md
 !readme.md
-
-Dockerfile
