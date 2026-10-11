@@ -147,6 +147,68 @@ func (cr *CommunityRepo) GetCommunityByIDRepo(ctx context.Context, communityID i
 	return detail, nil
 }
 
+func (cr *CommunityRepo) GetUpcomingEventRepo(ctx context.Context, community_id int) ([]dto.EventsResponse, error) {
+	sql := `
+		SELECT 
+			e.id, 
+			e.title, 
+			e.description, 
+			e.category, 
+			e.location, 
+			e.image_url, 
+			e.start_time, 
+			e.end_time, 
+			e.max_participants, 
+			e.status, 
+			e.community_id, 
+			e.organizer_id, 
+			COALESCE(ep.total_participants, 0) AS total_participants
+		FROM events e 
+		LEFT JOIN (
+			SELECT event_id, COUNT(user_id) AS total_participants 
+			FROM event_participants 
+			GROUP BY event_id
+		) ep ON e.id = ep.event_id 
+		WHERE e.start_time >= NOW() AND e.community_id = $1;
+	`
+
+	rows, err := cr.db.Query(ctx, sql, community_id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []dto.EventsResponse
+	for rows.Next() {
+		var ev dto.EventsResponse
+		err := rows.Scan(
+			&ev.ID,
+			&ev.Title,
+			&ev.Description,
+			&ev.Category,
+			&ev.Location,
+			&ev.ImageUrl,
+			&ev.StartTime,
+			&ev.EndTime,
+			&ev.MaxParticipants,
+			&ev.Status,
+			&ev.CommunityID,
+			&ev.OrganizerID,
+			&ev.TotalParticipants,
+		)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, ev)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
 func (cr *CommunityRepo) GetCommunityMembersRepo(ctx context.Context, communityID int) ([]dto.MemberResponse, error) {
 	query := `
 		SELECT 

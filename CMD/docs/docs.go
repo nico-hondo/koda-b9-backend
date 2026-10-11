@@ -15,58 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth": {
-            "post": {
-                "description": "Login Acc from body",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Login an Account",
-                "parameters": [
-                    {
-                        "description": "body to login",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/change-password": {
             "patch": {
                 "security": [
@@ -92,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ChangePasswordRequest"
+                            "$ref": "#/definitions/dto.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -100,25 +48,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     }
                 }
@@ -149,7 +97,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ChangeProfileUser"
+                            "$ref": "#/definitions/dto.ChangeProfileUser"
                         }
                     }
                 ],
@@ -157,25 +105,77 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Login Acc from body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login an Account",
+                "parameters": [
+                    {
+                        "description": "body to login",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -201,7 +201,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.RegisterRequest"
+                            "$ref": "#/definitions/dto.RegisterRequest"
                         }
                     }
                 ],
@@ -209,13 +209,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -256,25 +256,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -297,13 +297,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -335,25 +335,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -399,19 +399,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -439,27 +439,32 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/events/upcoming": {
+        "/events/saved-events": {
             "get": {
-                "description": "Retrieve a list of upcoming events",
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Get list of events has saved by the authenticated user",
                 "consumes": [
                     "application/json"
                 ],
@@ -469,18 +474,24 @@ const docTemplate = `{
                 "tags": [
                     "Events"
                 ],
-                "summary": "Get upcoming events",
+                "summary": "Get user's saved events",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -512,23 +523,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
-            },
+            }
+        },
+        "/events/{id}/join": {
             "post": {
                 "security": [
                     {
@@ -559,25 +572,80 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/save": {
+            "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Save or UnSave an event by event ID (requires authentication)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Save or unsave an event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -595,26 +663,26 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "notif"
+                    "Notification"
                 ],
                 "summary": "Get All Notif Data",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -637,13 +705,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -674,7 +742,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.NewTestimoni"
+                            "$ref": "#/definitions/dto.NewTestimoni"
                         }
                     }
                 ],
@@ -682,25 +750,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.Response"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -708,7 +776,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_nico-hondo_internal_dto.ChangePasswordRequest": {
+        "dto.ChangePasswordRequest": {
             "type": "object",
             "required": [
                 "new_password",
@@ -724,7 +792,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_nico-hondo_internal_dto.ChangeProfileUser": {
+        "dto.ChangeProfileUser": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -747,7 +815,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_nico-hondo_internal_dto.ErrorResponse": {
+        "dto.ErrorResponse": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -759,7 +827,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_nico-hondo_internal_dto.LoginRequest": {
+        "dto.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -774,7 +842,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_nico-hondo_internal_dto.NewTestimoni": {
+        "dto.NewTestimoni": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -785,18 +853,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_nico-hondo_internal_dto.RegisterRequest": {
+        "dto.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
-                "nama",
+                "name",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "nama": {
+                "name": {
                     "type": "string"
                 },
                 "password": {
@@ -805,7 +873,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_nico-hondo_internal_dto.Response": {
+        "dto.Response": {
             "type": "object",
             "properties": {
                 "data": {},

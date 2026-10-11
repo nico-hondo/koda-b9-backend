@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  github_com_nico-hondo_internal_dto.ChangePasswordRequest:
+  dto.ChangePasswordRequest:
     properties:
       new_password:
         minLength: 6
@@ -11,7 +11,7 @@ definitions:
     - new_password
     - old_password
     type: object
-  github_com_nico-hondo_internal_dto.ChangeProfileUser:
+  dto.ChangeProfileUser:
     properties:
       avatar:
         type: string
@@ -26,7 +26,7 @@ definitions:
       workplace:
         type: string
     type: object
-  github_com_nico-hondo_internal_dto.ErrorResponse:
+  dto.ErrorResponse:
     properties:
       data: {}
       msg:
@@ -34,7 +34,7 @@ definitions:
       success:
         type: boolean
     type: object
-  github_com_nico-hondo_internal_dto.LoginRequest:
+  dto.LoginRequest:
     properties:
       email:
         type: string
@@ -44,28 +44,28 @@ definitions:
     - email
     - password
     type: object
-  github_com_nico-hondo_internal_dto.NewTestimoni:
+  dto.NewTestimoni:
     properties:
       comment:
         type: string
       user_id:
         type: integer
     type: object
-  github_com_nico-hondo_internal_dto.RegisterRequest:
+  dto.RegisterRequest:
     properties:
       email:
         type: string
-      nama:
+      name:
         type: string
       password:
         minLength: 6
         type: string
     required:
     - email
-    - nama
+    - name
     - password
     type: object
-  github_com_nico-hondo_internal_dto.Response:
+  dto.Response:
     properties:
       data: {}
       msg:
@@ -80,40 +80,6 @@ info:
   title: Koda B9 Backend
   version: "1.0"
 paths:
-  /auth:
-    post:
-      consumes:
-      - application/json
-      description: Login Acc from body
-      parameters:
-      - description: body to login
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_nico-hondo_internal_dto.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
-      summary: Login an Account
-      tags:
-      - Auth
   /auth/change-password:
     patch:
       consumes:
@@ -125,26 +91,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_nico-hondo_internal_dto.ChangePasswordRequest'
+          $ref: '#/definitions/dto.ChangePasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
       security:
       - BearerToken: []
       summary: Change Password User
@@ -161,29 +127,63 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_nico-hondo_internal_dto.ChangeProfileUser'
+          $ref: '#/definitions/dto.ChangeProfileUser'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
       security:
       - BearerToken: []
       summary: Change Profile User
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login Acc from body
+      parameters:
+      - description: body to login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Login an Account
       tags:
       - Auth
   /auth/register:
@@ -197,18 +197,18 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_nico-hondo_internal_dto.RegisterRequest'
+          $ref: '#/definitions/dto.RegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Register an Account
       tags:
       - Auth
@@ -234,19 +234,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get list of communities
       tags:
       - Communities
@@ -267,19 +267,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get community detail by ID
       tags:
       - Communities
@@ -294,11 +294,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get list of popular communities
       tags:
       - Communities
@@ -327,15 +327,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get list of events
       tags:
       - Events
@@ -356,18 +356,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get event detail by ID
       tags:
       - Events
+  /events/{id}/join:
     post:
       consumes:
       - application/json
@@ -384,22 +385,57 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       security:
       - BearerToken: []
       summary: Join or unjoin an event
+      tags:
+      - Events
+  /events/{id}/save:
+    post:
+      consumes:
+      - application/json
+      description: Save or UnSave an event by event ID (requires authentication)
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerToken: []
+      summary: Save or unsave an event
       tags:
       - Events
   /events/myevents:
@@ -413,37 +449,43 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       security:
       - BearerToken: []
       summary: Get user's joined events
       tags:
       - Events
-  /events/upcoming:
+  /events/saved-events:
     get:
       consumes:
       - application/json
-      description: Retrieve a list of upcoming events
+      description: Get list of events has saved by the authenticated user
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
-      summary: Get upcoming events
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerToken: []
+      summary: Get user's saved events
       tags:
       - Events
   /my-notification:
@@ -455,20 +497,20 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       security:
       - BearerToken: []
       summary: Get All Notif Data
       tags:
-      - notif
+      - Notification
   /testimony:
     get:
       consumes:
@@ -480,11 +522,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get all testimonies
       tags:
       - Testimonies
@@ -499,26 +541,26 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_nico-hondo_internal_dto.NewTestimoni'
+          $ref: '#/definitions/dto.NewTestimoni'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.Response'
+            $ref: '#/definitions/dto.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_nico-hondo_internal_dto.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       security:
       - BearerToken: []
       summary: Create a new testimony

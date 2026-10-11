@@ -1,0 +1,88 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: eventhub-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - eventhub-be
+    networks:
+      - eventhub-net
+
+  frontend:
+    image: ghcr.io/nico-hondo/koda-b9-eventhub:latest
+    container_name: eventhub-fe
+    restart: unless-stopped
+    depends_on:
+      - eventhub-be
+    networks:
+      - eventhub-net
+
+  eventhub-be:
+    image: ghcr.io/nico-hondo/koda-b9-eventhub-be:latest
+    container_name: eventhub-be
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      DBHOST: pg-db
+      DBPORT: "5432"
+      RDBHOST: rdb
+      RDBPORT: "6379"
+      GODEBUG: "netdns=go"
+    volumes:
+      - ./public:/app/public
+    depends_on:
+      pg-db:
+        condition: service_healthy
+      rdb:
+        condition: service_started
+    networks:
+      - eventhub-net
+
+  pg-db:
+    image: postgres:16.15
+    container_name: pg-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nico
+      POSTGRES_PASSWORD: hondo123
+      POSTGRES_DB: koda-b9-db
+    ports:
+      - "7000:5432"
+    volumes:
+      - db9:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nico -d koda-b9-db"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    networks:
+      - eventhub-net
+
+  rdb:
+    image: redis:8.10.2
+    container_name: rdb
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6500:6379"
+    volumes:
+      - eventhub:/data
+      - /home/nicohondo/rds/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - eventhub-net
+
+volumes:
+  db9:
+    external: true
+  eventhub:
+    external: true
+
+networks:
+  eventhub-net:
+    driver: bridge

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/nico-hondo/internal/dto"
@@ -28,8 +29,21 @@ func NewEventsService(er *repo.EventsRepo, nr *repo.NotifRepo, rdb *redis.Client
 	}
 }
 
+func buildEventsCacheKey(f dto.EventFilterParam) string {
+	return fmt.Sprintf("nicohondo:events:search=%s:category=%s:location=%s:sort=%s",
+		strings.ToLower(strings.TrimSpace(f.Search)),
+		strings.ToLower(strings.TrimSpace(f.Category)),
+		strings.ToLower(strings.TrimSpace(f.Location)),
+		f.Sort,
+	)
+}
+
 func (es *EventsService) GetEventsService(ctx context.Context, filter dto.EventFilterParam) ([]dto.EventsResponse, error) {
-	key := "nicohondo:events"
+	if filter.Sort == "" {
+		filter.Sort = "upcoming"
+	}
+
+	key := buildEventsCacheKey(filter)
 
 	if val, err := es.rdb.Get(ctx, key).Result(); err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -116,18 +130,18 @@ func (es *EventsService) JoinEventsService(ctx context.Context, userId, eventId 
 	return false, "Berhasil unjoin event!", nil
 }
 
-func (es *EventsService) GetUpcomingEventService(ctx context.Context) ([]dto.EventsResponse, error) {
-	events, err := es.er.GetUpcomingEventRepo(ctx)
-	if err != nil {
-		return nil, err
-	}
+// func (es *EventsService) GetUpcomingEventService(ctx context.Context, community_id int) ([]dto.EventsResponse, error) {
+// 	events, err := es.er.GetUpcomingEventRepo(ctx, community_id)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if events == nil {
-		events = []dto.EventsResponse{}
-	}
+// 	if events == nil {
+// 		events = []dto.EventsResponse{}
+// 	}
 
-	return events, nil
-}
+// 	return events, nil
+// }
 
 func (es *EventsService) GetMyEventsService(ctx context.Context, userId int) ([]dto.EventsResponse, error) {
 	myEvents, err := es.er.MyEventRepo(ctx, userId)
@@ -140,4 +154,20 @@ func (es *EventsService) GetMyEventsService(ctx context.Context, userId int) ([]
 	}
 
 	return myEvents, nil
+}
+
+func (es *EventsService) ToggleSaveEvent(ctx context.Context, userID, eventID int) (dto.SaveEventResponse, error) {
+	isSaved, err := es.er.ToggleSaveEvent(ctx, userID, eventID)
+	if err != nil {
+		return dto.SaveEventResponse{}, err
+	}
+
+	return dto.SaveEventResponse{
+		EventID: eventID,
+		IsSaved: isSaved,
+	}, nil
+}
+
+func (es *EventsService) GetSavedEvents(ctx context.Context, userID int) ([]model.SavedEvents, error) {
+	return es.er.GetSavedEvents(ctx, userID)
 }

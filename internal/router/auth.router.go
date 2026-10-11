@@ -18,8 +18,8 @@ func initAuthRouter(r *gin.Engine, db *pgxpool.Pool, redisClient *redis.Client) 
 	as := service.NewAuthService(ar, nr, redisClient)
 	ah := handler.NewAuthHandler(as)
 
-	authRouter.POST("register", ah.Register)
-	authRouter.POST("", ah.Login)
+	authRouter.POST("/register", ah.Register)
+	authRouter.POST("/login", ah.Login)
 	authRouter.PATCH("/change-password", middleware.CheckToken, ah.ChangePassword)
 	authRouter.PATCH("/change-profile", middleware.CheckToken, ah.ChangeProfileUser)
 

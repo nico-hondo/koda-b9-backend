@@ -109,10 +109,10 @@ func (eh *EventsHandler) GetEventByIdHandler(ctx *gin.Context) {
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      401  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
-// @Router       /events/{id} [post]
+// @Router       /events/{id}/join [post]
 func (eh *EventsHandler) JoinEventHandler(ctx *gin.Context) {
+	// 1. Ambil ID Event dari URL parameter
 	evIdParam := ctx.Param("id")
-
 	evId, err := strconv.Atoi(evIdParam)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
@@ -122,26 +122,32 @@ func (eh *EventsHandler) JoinEventHandler(ctx *gin.Context) {
 		return
 	}
 
+	// 2. Ambil token dari Context (diset oleh middleware CheckToken)
 	val, exists := ctx.Get("token")
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Success: false,
-			Msg:     "unauthorized",
+			Msg:     "unauthorized, please login first",
 		})
 		return
 	}
 
-	claims, ok := val.(pkg.JwtClaims)
-	if !ok {
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	// 3. Type Assertion ke pkg.JwtClaims (Mendukung Pointer maupun Value)
+	var claims pkg.JwtClaims
+	if cVal, ok := val.(pkg.JwtClaims); ok {
+		claims = cVal
+	} else if cPtr, ok := val.(*pkg.JwtClaims); ok {
+		claims = *cPtr
+	} else {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Success: false,
-			Msg:     "terjadi kesalahan sistem",
+			Msg:     "invalid token claims structure",
 		})
 		return
 	}
 
+	// 4. Panggil Service untuk Join/Unjoin Event (Gunakan claims.Id)
 	isJoined, msg, err := eh.es.JoinEventsService(ctx.Request.Context(), claims.Id, evId)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Success: false,
@@ -150,6 +156,7 @@ func (eh *EventsHandler) JoinEventHandler(ctx *gin.Context) {
 		return
 	}
 
+	// 5. Return Response Sukses
 	ctx.JSON(http.StatusOK, dto.Response{
 		Success: true,
 		Data: gin.H{
@@ -168,24 +175,24 @@ func (eh *EventsHandler) JoinEventHandler(ctx *gin.Context) {
 // @Success      200  {object}  dto.Response
 // @Failure      500  {object}  dto.ErrorResponse
 // @Router       /events/upcoming [get]
-func (eh *EventsHandler) GetUpcomingEventHandler(ctx *gin.Context) {
-	// Panggil layer Service
-	events, err := eh.es.GetUpcomingEventService(ctx.Request.Context())
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Success: false,
-			Msg:     "Gagal mengambil data upcoming event",
-		})
-		return
-	}
+// func (eh *EventsHandler) GetUpcomingEventHandler(ctx *gin.Context) {
+// 	// Panggil layer Service
+// 	events, err := eh.es.GetUpcomingEventService(ctx.Request.Context())
+// 	if err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+// 			Success: false,
+// 			Msg:     "Gagal mengambil data upcoming event",
+// 		})
+// 		return
+// 	}
 
-	// Return response OK
-	ctx.JSON(http.StatusOK, dto.Response{
-		Success: true,
-		Data:    events,
-		Msg:     "Berhasil mengambil data upcoming event",
-	})
-}
+// 	// Return response OK
+// 	ctx.JSON(http.StatusOK, dto.Response{
+// 		Success: true,
+// 		Data:    events,
+// 		Msg:     "Berhasil mengambil data upcoming event",
+// 	})
+// }
 
 // GetMyEventsHandler godoc
 // @Summary      Get user's joined events
@@ -231,5 +238,105 @@ func (eh *EventsHandler) GetMyEventsHandler(ctx *gin.Context) {
 		Success: true,
 		Data:    myEvents,
 		Msg:     "MyEvent berhasil diambil",
+	})
+}
+
+// SaveEventHandler godoc
+// @Summary      Save or unsave an event
+// @Description  Save or UnSave an event by event ID (requires authentication)
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Security     BearerToken
+// @Param        id   path      int  true  "Event ID"
+// @Success      200  {object}  dto.Response
+// @Failure      400  {object}  dto.ErrorResponse
+// @Failure      401  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /events/{id}/save [post]
+func (eh *EventsHandler) ToggleSaveEvent(ctx *gin.Context) {
+	eventIDParam := ctx.Param("id")
+	eventID, err := strconv.Atoi(eventIDParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Success: false,
+			Msg:     "id event tidak valid",
+		})
+		return
+	}
+
+	val, exists := ctx.Get("token")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Success: false,
+			Msg:     "unauthorized",
+		})
+		return
+	}
+
+	claims, ok := val.(pkg.JwtClaims)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Success: false,
+			Msg:     "terjadi kesalahan sistem",
+		})
+		return
+	}
+
+	res, err := eh.es.ToggleSaveEvent(ctx.Request.Context(), claims.Id, eventID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Success: false,
+			Msg:     err.Error(),
+		})
+		return
+	}
+
+	msg := "Event berhasil disimpan"
+	if !res.IsSaved {
+		msg = "Event berhasil dihapus dari simpanan"
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Success: true,
+		Data:    res,
+		Msg:     msg,
+	})
+}
+
+// GetMySavedEventsHandler godoc
+// @Summary      Get user's saved events
+// @Description  Get list of events has saved by the authenticated user
+// @Tags         Events
+// @Accept       json
+// @Produce      json
+// @Security     BearerToken
+// @Success      200  {object}  dto.Response
+// @Failure      401  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /events/saved-events [get]
+func (eh *EventsHandler) GetSavedEventsHandler(ctx *gin.Context) {
+	val, exists := ctx.Get("token")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{Success: false, Msg: "unauthorized"})
+		return
+	}
+
+	var claims pkg.JwtClaims
+	if cVal, ok := val.(pkg.JwtClaims); ok {
+		claims = cVal
+	} else if cPtr, ok := val.(*pkg.JwtClaims); ok {
+		claims = *cPtr
+	}
+
+	saved, err := eh.es.GetSavedEvents(ctx.Request.Context(), claims.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{Success: false, Msg: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Success: true,
+		Data:    saved,
 	})
 }

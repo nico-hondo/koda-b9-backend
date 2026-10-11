@@ -19,7 +19,12 @@ func GetNewNotifRepo(db *pgxpool.Pool) *GetNotifRepo {
 }
 
 func (nr *GetNotifRepo) GetNotif(ctx context.Context, userId int) ([]model.Notif, error) {
-	sql := "SELECT id, user_id, type_id, title, message FROM notifications WHERE user_id=$1"
+	sql := `
+			select 
+				n.id, n.user_id, n.title, n.message, n.read_at, nt.id, nt.name, nt.icon, nt.bg_color, nt.icon_color
+			from notifications n
+			join notification_type nt on n.type_id = nt.id
+			where n.user_id = $1`
 	args := []any{userId}
 
 	notifs, err := nr.db.Query(ctx, sql, args...)
@@ -34,7 +39,7 @@ func (nr *GetNotifRepo) GetNotif(ctx context.Context, userId int) ([]model.Notif
 	for notifs.Next() {
 		var notif model.Notif
 
-		if err := notifs.Scan(&notif.Id, &notif.User_Id, &notif.Type_Id, &notif.Title, &notif.Message); err != nil {
+		if err := notifs.Scan(&notif.Id, &notif.User_Id, &notif.Title, &notif.Message, &notif.Read_At, &notif.Type_Id, &notif.Name, &notif.Icon, &notif.Bg_Color, &notif.Icon_Color); err != nil {
 			return nil, err
 		}
 

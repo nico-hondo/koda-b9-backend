@@ -43,3 +43,8 @@ type JoinEvent struct {
 	EventTitle string    `json:"event_title"`
 	StartTime  time.Time `json:"start_time"`
 }
+
+type SaveEventResponse struct {
+	EventID int  `json:"event_id"`
+	IsSaved bool `json:"is_saved"`
+}

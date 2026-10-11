@@ -3,9 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/nico-hondo/internal/dto"
@@ -28,42 +26,42 @@ func NewNotifService(nr *repo.GetNotifRepo, rdb *redis.Client) *NotifService {
 func (ns *NotifService) GetAllNotifbyId(ctx context.Context, userId int) ([]dto.Notif, error) {
 	key := fmt.Sprintf("nicohondo:notifications:%d", userId)
 
-	if val, err := ns.rdb.Get(ctx, key).Result(); err != nil {
-		if errors.Is(err, redis.Nil) {
-			log.Println("key does not exist")
-		} else {
-			log.Println(err.Error())
-		}
-	} else {
-		var notif []dto.Notif
-		if err := json.Unmarshal([]byte(val), &notif); err != nil {
-			log.Println("parse error\nreason: ", err.Error())
-		} else {
-			return notif, nil
+	// 1. Cek Cache Redis
+	if val, err := ns.rdb.Get(ctx, key).Result(); err == nil {
+		var cachedNotif []dto.Notif
+		if err := json.Unmarshal([]byte(val), &cachedNotif); err == nil && len(cachedNotif) > 0 {
+			return cachedNotif, nil
 		}
 	}
 
-	//cache miss, ambil dari db
+	// 2. Cache Miss -> Ambil dari DB
 	notif, err := ns.nr.GetNotif(ctx, userId)
+	if err != nil {
+		return nil, err // Langsung return jika DB error!
+	}
 
 	data := make([]dto.Notif, 0, len(notif))
 	for _, val := range notif {
 		data = append(data, dto.Notif{
-			Id:      val.Id,
-			User_Id: val.User_Id,
-			Type_Id: val.Type_Id,
-			Title:   val.Title,
-			Message: val.Message,
+			Id:         val.Id,
+			User_Id:    val.User_Id,
+			Title:      val.Title,
+			Message:    val.Message,
+			Read_At:    val.Read_At,
+			Type_Id:    val.Type_Id,
+			Name:       val.Name,
+			Icon:       val.Icon,
+			Bg_Color:   val.Bg_Color,
+			Icon_Color: val.Icon_Color,
 		})
 	}
-	log.Println(data)
 
-	if str, err := json.Marshal(data); err != nil {
-		log.Println("stringify error\nreason: ", err.Error())
-	} else {
-		if err := ns.rdb.Set(ctx, key, string(str), 10*time.Minute).Err(); err != nil {
-			log.Println("redis set error\nreason: ", err.Error())
+	// 3. Simpan ke Redis HANYA JIKA data ada
+	if len(data) > 0 {
+		if str, errMarshal := json.Marshal(data); errMarshal == nil {
+			_ = ns.rdb.Set(ctx, key, string(str), 10*time.Minute).Err()
 		}
 	}
-	return data, err
+
+	return data, nil
 }

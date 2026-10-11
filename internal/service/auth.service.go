@@ -69,10 +69,10 @@ func (as *AuthService) CreateUser(ctx context.Context, body dto.RegisterRequest)
 	return nil
 }
 
-func (as *AuthService) Login(ctx context.Context, body dto.LoginRequest) (string, error) {
+func (as *AuthService) Login(ctx context.Context, body dto.LoginRequest) (string, dto.UserResponse, error) {
 	//validas
 	if len(body.Email) == 0 || len(body.Password) == 0 {
-		return "", apperror.ErrCredentialsEmpty
+		return "", dto.UserResponse{}, apperror.ErrCredentialsEmpty
 	}
 
 	//cek account apakah sudah ada di db (melalui repo)
@@ -80,20 +80,31 @@ func (as *AuthService) Login(ctx context.Context, body dto.LoginRequest) (string
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", apperror.ErrInvalidCredentials
+			return "", dto.UserResponse{}, apperror.ErrInvalidCredentials
 		}
-		return "", err
+		return "", dto.UserResponse{}, err
 	}
 
 	if err := pkg.Compare(body.Password, acc.Password); err != nil {
 		log.Printf("DEBUG compare failed: %v", err)
-		return "", apperror.ErrInvalidCredentials
+		return "", dto.UserResponse{}, apperror.ErrInvalidCredentials
 	}
 
 	//Jika tidak terjadi error, maka berikan nilai truenya
 	claims := pkg.NewJwtClaims(acc.Id, acc.Role)
+	token, err := claims.GenToken()
+	if err != nil {
+		return "", dto.UserResponse{}, err
+	}
 
-	return claims.GenToken()
+	userRespon := dto.UserResponse{
+		ID:    acc.Id,
+		Name:  acc.Name,
+		Email: acc.Email,
+		Role:  acc.Role,
+	}
+
+	return token, userRespon, err
 }
 
 func (as *AuthService) Logout(ctx context.Context, tokenString string, claims jwt.MapClaims) error {

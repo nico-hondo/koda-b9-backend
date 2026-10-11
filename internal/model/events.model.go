@@ -24,3 +24,9 @@ type JoinEvents struct {
 	User_Id   int       `db:"user_id" json:"user_id"`
 	Joined_At time.Time `db:"joined_at" json:"joined_at"`
 }
+
+type SavedEvents struct {
+	User_Id  int       `db:"user_id" json:"user_id"`
+	Event_Id int       `db:"event_id" json:"event_id"`
+	Saved_At time.Time `db:"saved_at" json:"saved_at"`
+}

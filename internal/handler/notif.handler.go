@@ -23,7 +23,7 @@ func NewNotifHandler(ps *service.NotifService) *NotifHandler {
 // GetAllNotif godoc
 // @Summary Get All Notif Data
 // @Description Get Notif Data from database
-// @Tags notif
+// @Tags Notification
 // @Produce json
 // @Security BearerToken
 // @Success 200 {object} dto.Response

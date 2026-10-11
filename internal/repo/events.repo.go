@@ -21,33 +21,44 @@ func NewEventsRepo(db *pgxpool.Pool) *EventsRepo {
 }
 
 func (er *EventsRepo) GetEventsRepo(ctx context.Context, filter dto.EventFilterParam) ([]dto.EventsResponse, error) {
-	sql := `SELECT e.id, e.title, e.description, e.category, e.location, e.image_url, e.start_time, e.end_time, e.max_participants, e.status, e.community_id, e.organizer_id, COALESCE(ep.total_participants, 0) AS total_participants from events e LEFT JOIN(SELECT event_id, COUNT(user_id) AS total_participants FROM event_participants GROUP BY event_id) ep ON e.id = ep.event_id WHERE 1 = 1`
+	sql := `SELECT 
+				e.id, e.title, e.description, e.category, e.location, e.image_url, 
+				e.start_time, e.end_time, e.max_participants, e.status, e.community_id, 
+				e.organizer_id, COALESCE(ep.total_participants, 0) AS total_participants 
+			FROM events e 
+			LEFT JOIN (
+				SELECT event_id, COUNT(user_id) AS total_participants 
+				FROM event_participants 
+				GROUP BY event_id
+			) ep ON e.id = ep.event_id 
+			WHERE 1 = 1`
 
 	var args []interface{}
 	argIdx := 1
 
-	// Filter Search Keyword (Title atau Description)
-	if filter.Search != "" {
-		sql += fmt.Sprintf(" AND (e.title ILIKE $%d OR e.description ILIKE $%d)", argIdx, argIdx)
-		args = append(args, "%"+filter.Search+"%")
-		argIdx++
+	// 1. Filter Search Keyword
+	if strings.TrimSpace(filter.Search) != "" {
+		sql += fmt.Sprintf(" AND (e.title ILIKE $%d OR e.description ILIKE $%d)", argIdx, argIdx+1)
+		searchPattern := "%" + strings.TrimSpace(filter.Search) + "%"
+		args = append(args, searchPattern, searchPattern)
+		argIdx += 2
 	}
 
-	// Filter Category
+	// 2. Filter Category
 	if filter.Category != "" && strings.ToLower(filter.Category) != "all" {
 		sql += fmt.Sprintf(" AND e.category ILIKE $%d", argIdx)
-		args = append(args, filter.Category)
+		args = append(args, "%"+strings.TrimSpace(filter.Category)+"%")
 		argIdx++
 	}
 
-	// Filter Location
+	// 3. Filter Location
 	if filter.Location != "" && strings.ToLower(filter.Location) != "all locations" {
 		sql += fmt.Sprintf(" AND e.location ILIKE $%d", argIdx)
-		args = append(args, filter.Location)
+		args = append(args, "%"+strings.TrimSpace(filter.Location)+"%")
 		argIdx++
 	}
 
-	// Sorting
+	// 4. Sorting
 	switch filter.Sort {
 	case "popular":
 		sql += " ORDER BY total_participants DESC"
@@ -59,18 +70,19 @@ func (er *EventsRepo) GetEventsRepo(ctx context.Context, filter dto.EventFilterP
 		sql += " ORDER BY e.start_time ASC"
 	}
 
-	events, err := er.db.Query(ctx, sql, args...)
+	// Debugging: Print SQL query dan argument di console backend untuk memastikan query SQL benar
+	// fmt.Printf("SQL QUERY: %s\nARGS: %v\n", sql, args)
 
+	rows, err := er.db.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err
 	}
-
-	defer events.Close()
+	defer rows.Close()
 
 	var data []dto.EventsResponse
-	for events.Next() {
+	for rows.Next() {
 		var event dto.EventsResponse
-		if err := events.Scan(
+		if err := rows.Scan(
 			&event.ID,
 			&event.Title,
 			&event.Description,
@@ -90,6 +102,7 @@ func (er *EventsRepo) GetEventsRepo(ctx context.Context, filter dto.EventFilterP
 
 		data = append(data, event)
 	}
+
 	return data, nil
 }
 
@@ -203,112 +216,84 @@ func (er *EventsRepo) JoinEventRepo(ctx context.Context, userId, eventId int) (d
 	return result, nil
 }
 
-func (er *EventsRepo) GetUpcomingEventRepo(ctx context.Context) ([]dto.EventsResponse, error) {
-	sql := `
-		SELECT 
-			e.id, 
-			e.title, 
-			e.description, 
-			e.category, 
-			e.location, 
-			e.image_url, 
-			e.start_time, 
-			e.end_time, 
-			e.max_participants, 
-			e.status, 
-			e.community_id, 
-			e.organizer_id, 
-			COALESCE(ep.total_participants, 0) AS total_participants
-		FROM events e 
-		LEFT JOIN (
-			SELECT event_id, COUNT(user_id) AS total_participants 
-			FROM event_participants 
-			GROUP BY event_id
-		) ep ON e.id = ep.event_id 
-		WHERE e.start_time >= NOW()
-		ORDER BY e.start_time ASC
-		LIMIT 1
-	`
-
-	rows, err := er.db.Query(ctx, sql)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var events []dto.EventsResponse
-	for rows.Next() {
-		var ev dto.EventsResponse
-		err := rows.Scan(
-			&ev.ID,
-			&ev.Title,
-			&ev.Description,
-			&ev.Category,
-			&ev.Location,
-			&ev.ImageUrl,
-			&ev.StartTime,
-			&ev.EndTime,
-			&ev.MaxParticipants,
-			&ev.Status,
-			&ev.CommunityID,
-			&ev.OrganizerID,
-			&ev.TotalParticipants,
-		)
-		if err != nil {
-			return nil, err
-		}
-		events = append(events, ev)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return events, nil
-}
-
 func (er *EventsRepo) MyEventRepo(ctx context.Context, userId int) ([]dto.EventsResponse, error) {
 	sql := `
 		SELECT 
-    		e.id, e.title, e.description, e.category, e.location, e.image_url, e.start_time, e.end_time, e.max_participants, e.status, e.community_id, e.organizer_id, COALESCE(ep.total_participants, 0) AS total_participants 
-		from events e 
-		LEFT JOIN(SELECT event_id, user_id, COUNT(user_id) AS total_participants FROM event_participants GROUP BY event_id, user_id) ep ON e.id = ep.event_id 
-		WHERE ep.user_id=$1
+			e.id, e.title, e.description, e.category, e.location, e.image_url, 
+			e.start_time, e.end_time, e.max_participants, e.status, e.community_id, 
+			e.organizer_id,
+			COALESCE(COUNT(ep_all.user_id), 0) AS total_participants
+		FROM events e
+		INNER JOIN event_participants ep_user ON e.id = ep_user.event_id AND ep_user.user_id = $1
+		LEFT JOIN event_participants ep_all ON e.id = ep_all.event_id
+		GROUP BY e.id
 	`
 
 	rows, err := er.db.Query(ctx, sql, userId)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
-	var myEvents []dto.EventsResponse
+	var myEvents []dto.EventsResponse = []dto.EventsResponse{} // Inisialisasi slice kosong biar tidak return nil
 	for rows.Next() {
 		var ev dto.EventsResponse
 		err := rows.Scan(
-			&ev.ID,
-			&ev.Title,
-			&ev.Description,
-			&ev.Category,
-			&ev.Location,
-			&ev.ImageUrl,
-			&ev.StartTime,
-			&ev.EndTime,
-			&ev.MaxParticipants,
-			&ev.Status,
-			&ev.CommunityID,
-			&ev.OrganizerID,
-			&ev.TotalParticipants,
+			&ev.ID, &ev.Title, &ev.Description, &ev.Category, &ev.Location,
+			&ev.ImageUrl, &ev.StartTime, &ev.EndTime, &ev.MaxParticipants,
+			&ev.Status, &ev.CommunityID, &ev.OrganizerID, &ev.TotalParticipants,
 		)
 		if err != nil {
 			return nil, err
 		}
 		myEvents = append(myEvents, ev)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
 
 	return myEvents, nil
+}
+
+func (e *EventsRepo) ToggleSaveEvent(ctx context.Context, userID, eventID int) (bool, error) {
+	checkQuery := `SELECT EXISTS(SELECT 1 FROM event_saved WHERE user_id = $1 AND event_id = $2)`
+	var isSaved bool
+	err := e.db.QueryRow(ctx, checkQuery, userID, eventID).Scan(&isSaved)
+	if err != nil {
+		return false, err
+	}
+
+	if isSaved {
+		deleteQuery := `DELETE FROM event_saved WHERE user_id = $1 AND event_id = $2`
+		_, err := e.db.Exec(ctx, deleteQuery, userID, eventID)
+		if err != nil {
+			return false, err
+		}
+		return false, nil // Berhasil di-unsave
+	}
+
+	insertQuery := `INSERT INTO event_saved (user_id, event_id) VALUES ($1, $2)`
+	_, err = e.db.Exec(ctx, insertQuery, userID, eventID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (e *EventsRepo) GetSavedEvents(ctx context.Context, userID int) ([]model.SavedEvents, error) {
+	query := `SELECT user_id, event_id, saved_at FROM event_saved WHERE user_id = $1`
+	rows, err := e.db.Query(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	savedEvents := make([]model.SavedEvents, 0)
+	for rows.Next() {
+		var item model.SavedEvents
+		if err := rows.Scan(&item.User_Id, &item.Event_Id, &item.Saved_At); err != nil {
+			return nil, err
+		}
+		savedEvents = append(savedEvents, item)
+	}
+
+	return savedEvents, nil
 }

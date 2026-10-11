@@ -20,7 +20,8 @@ func initEventsRouter(ctx *gin.Engine, db *pgxpool.Pool, redisClient *redis.Clie
 
 	eventsRouter.GET("", eh.GetEvents)
 	eventsRouter.GET("/:id", eh.GetEventByIdHandler)
-	eventsRouter.GET("/upcoming", eh.GetUpcomingEventHandler)
-	eventsRouter.POST("/:id", middleware.CheckToken, eh.JoinEventHandler)
+	eventsRouter.POST("/:id/join", middleware.CheckToken, eh.JoinEventHandler)
+	eventsRouter.POST("/:id/save", middleware.CheckToken, eh.ToggleSaveEvent)
 	eventsRouter.GET("/myevents", middleware.CheckToken, eh.GetMyEventsHandler)
+	eventsRouter.GET("/saved-events", middleware.CheckToken, eh.GetSavedEventsHandler)
 }

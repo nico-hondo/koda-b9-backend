@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type CommunityFilterParam struct {
 	Search   string `form:"search" json:"search"`
@@ -42,6 +44,7 @@ type CommunityDetailResponse struct {
 	TotalUpcomingEvents int              `json:"total_upcoming_events"`
 	IsJoined            bool             `json:"is_joined"`
 	Members             []MemberResponse `json:"members"`
+	UpcomingEvents      []EventsResponse `json:"upcoming_events"`
 }
 
 type PopularCommunityResponse struct {

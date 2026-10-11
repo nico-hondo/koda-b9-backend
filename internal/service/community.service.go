@@ -51,6 +51,19 @@ func (cs *CommunitiesService) GetCommunityDetailService(ctx context.Context, com
 	}
 
 	detail.Members = members
+
+	// 3. Ambil List upcoming events
+	upcomingEv, err := cs.cr.GetUpcomingEventRepo(ctx, communityID)
+
+	if err != nil {
+		return dto.CommunityDetailResponse{}, err
+	}
+
+	if upcomingEv == nil {
+		upcomingEv = []dto.EventsResponse{}
+	}
+
+	detail.UpcomingEvents = upcomingEv
 	return detail, nil
 }
 

@@ -40,9 +40,9 @@ func (ah *AuthHandler) Register(ctx *gin.Context) {
 	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
 		log.Println(err.Error())
 
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Success: false,
-			Msg:     "terjadi kesalahan error",
+			Msg:     "not valid input data: " + err.Error(),
 		})
 		return
 	}
@@ -75,7 +75,7 @@ func (ah *AuthHandler) Register(ctx *gin.Context) {
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse
 // @Failure		500		{object}	dto.ErrorResponse
-// @Router		/auth	[post]
+// @Router		/auth/login	[post]
 func (a *AuthHandler) Login(c *gin.Context) {
 	var body dto.LoginRequest
 	if err := c.ShouldBindWith(&body, binding.JSON); err != nil {
@@ -87,7 +87,7 @@ func (a *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 	// gunakan service
-	token, err := a.as.Login(c.Request.Context(), body)
+	token, user, err := a.as.Login(c.Request.Context(), body)
 	if err != nil {
 		log.Println(err.Error())
 		if errors.Is(err, apperror.ErrCredentialsEmpty) {
@@ -114,6 +114,7 @@ func (a *AuthHandler) Login(c *gin.Context) {
 		Success: true,
 		Data: gin.H{
 			"token": token,
+			"user":  user,
 		},
 	})
 }

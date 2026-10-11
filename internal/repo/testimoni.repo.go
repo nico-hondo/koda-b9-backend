@@ -19,7 +19,7 @@ func NewTestimoniRepo(db *pgxpool.Pool) *GetTestimoniRepo {
 }
 
 func (tr *GetTestimoniRepo) GetTestimoniRepo(ctx context.Context) ([]model.Testimoni, error) {
-	sql := "select t.id, t.user_id, t.comment, t.created_at, u.name, u.job, u.workplace from testimonies t join users u on t.user_id = u.id;"
+	sql := "select t.id, t.user_id, t.comment, t.created_at, u.name, u.job, u.workplace from testimonies t join users u on t.user_id = u.id LIMIT 3;"
 
 	testi, err := tr.db.Query(ctx, sql)
 
