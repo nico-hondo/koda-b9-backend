@@ -1,27 +1,27 @@
-FROM golang:1.27.1-trixie AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
-
 RUN go mod download
 
 COPY . .
 
-RUN go build -o ./server ./CMD/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o ./server ./CMD/main.go
 
-FROM alpine:3.24
+FROM alpine:3.21
 
 WORKDIR /app
 
+RUN apk add --no-cache ca-certificates tzdata
+
 COPY --from=builder /app/server ./
 
-RUN mkdir -p public/img
-RUN mkdir -p public/docs
+RUN mkdir -p public/img public/docs && chmod +x /app/server
 
-RUN chmod +x /app/server
+EXPOSE 3000
 
-CMD [ "/app/server" ]
+CMD ["/app/server"]
 
 
 
