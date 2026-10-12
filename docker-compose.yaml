@@ -4,7 +4,7 @@ services:
     container_name: eventhub-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -14,7 +14,7 @@ services:
       - eventhub-net
 
   frontend:
-    image: ghcr.io/nico-hondo/koda-b9-eventhub:latest
+    image: ghcr.io/nico-hondo/eventhub-app:latest
     container_name: eventhub-fe
     restart: unless-stopped
     depends_on:
@@ -23,7 +23,7 @@ services:
       - eventhub-net
 
   eventhub-be:
-    image: ghcr.io/nico-hondo/koda-b9-eventhub-be:latest
+    image: ghcr.io/nico-hondo/koda-b9-backend:latest
     container_name: eventhub-be
     restart: unless-stopped
     env_file:
@@ -36,6 +36,7 @@ services:
       GODEBUG: "netdns=go"
     volumes:
       - ./public:/app/public
+      - ./.env:/app/.env
     depends_on:
       pg-db:
         condition: service_healthy
@@ -53,7 +54,7 @@ services:
       POSTGRES_PASSWORD: hondo123
       POSTGRES_DB: koda-b9-db
     ports:
-      - "7000:5432"
+      - "7001:5432"
     volumes:
       - db9:/var/lib/postgresql/data
     healthcheck:
@@ -70,7 +71,7 @@ services:
     restart: unless-stopped
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     ports:
-      - "6500:6379"
+      - "6501:6379"
     volumes:
       - eventhub:/data
       - /home/nicohondo/rds/redis.conf:/usr/local/etc/redis/redis.conf
