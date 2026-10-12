@@ -29,8 +29,11 @@ services:
     env_file:
       - ./.env
     environment:
+      DBNAME: "koda-b9-database"
       DBHOST: pg-db
       DBPORT: "5432"
+      RDB_ADDR: rdb
+      RDB_PORT: "6379"
       RDBHOST: rdb
       RDBPORT: "6379"
       GODEBUG: "netdns=go"
@@ -52,13 +55,13 @@ services:
     environment:
       POSTGRES_USER: nico
       POSTGRES_PASSWORD: hondo123
-      POSTGRES_DB: koda-b9-db
+      POSTGRES_DB: koda-b9-database
     ports:
       - "7001:5432"
     volumes:
       - db9:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nico -d koda-b9-db"]
+      test: ["CMD-SHELL", "pg_isready -U nico -d koda-b9-database"]
       interval: 3s
       timeout: 3s
       retries: 5
