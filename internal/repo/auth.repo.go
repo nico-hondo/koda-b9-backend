@@ -79,24 +79,8 @@ func (ar *AuthRepo) FindUserByID(ctx context.Context, id int) (model.Users, erro
 }
 
 func (ar *AuthRepo) UpdatePasswordByEmail(ctx context.Context, email, hashedPwd string) error {
-	sql := "UPDATE users SET password=$1 WHERE email=$2"
+	sql := "UPDATE users SET password=$1, updated_at=NOW() WHERE email=$2"
 	args := []any{hashedPwd, email}
-
-	cmd, err := ar.db.Exec(ctx, sql, args...)
-	if err != nil {
-		return err
-	}
-
-	if cmd.RowsAffected() == 0 {
-		return apperror.ErrNotFound
-	}
-
-	return nil
-}
-
-func (ar *AuthRepo) UpdateProfileUser(ctx context.Context, email, name, avatar_url, bio, loc, job, workplace string) error {
-	sql := "UPDATE users SET name=$1, avatar_url=$2, bio=$3, location=$4, job=$5, workplace=$6, updated_at=NOW() WHERE email=$7"
-	args := []any{name, avatar_url, bio, loc, job, workplace, email}
 
 	cmd, err := ar.db.Exec(ctx, sql, args...)
 	if err != nil {

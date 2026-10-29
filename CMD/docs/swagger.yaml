@@ -11,21 +11,6 @@ definitions:
     - new_password
     - old_password
     type: object
-  dto.ChangeProfileUser:
-    properties:
-      avatar:
-        type: string
-      bio:
-        type: string
-      job:
-        type: string
-      loc:
-        type: string
-      nama:
-        type: string
-      workplace:
-        type: string
-    type: object
   dto.ErrorResponse:
     properties:
       data: {}
@@ -114,42 +99,6 @@ paths:
       security:
       - BearerToken: []
       summary: Change Password User
-      tags:
-      - Auth
-  /auth/change-profile:
-    patch:
-      consumes:
-      - multipart/form-data
-      description: Update user profile details using Form Data
-      parameters:
-      - description: Profile Data
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ChangeProfileUser'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.Response'
-      security:
-      - BearerToken: []
-      summary: Change Profile User
       tags:
       - Auth
   /auth/login:
@@ -566,6 +515,78 @@ paths:
       summary: Create a new testimony
       tags:
       - Testimonies
+  /user/change-profile:
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Update user profile details including name, location, bio, and
+        avatar image
+      parameters:
+      - description: User full name
+        in: formData
+        name: nama
+        type: string
+      - description: User location
+        in: formData
+        name: loc
+        type: string
+      - description: User biography
+        in: formData
+        name: bio
+        type: string
+      - description: User profile picture
+        in: formData
+        name: avatar
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Invalid request form body
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Change User Profile
+      tags:
+      - User
+  /user/my-profile:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information of a specific profile user by its ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerToken: []
+      summary: Get Profile detail by ID
+      tags:
+      - User
 securityDefinitions:
   BearerToken:
     description: Bearer Token used as identity for accessing backend

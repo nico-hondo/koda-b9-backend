@@ -278,18 +278,34 @@ func (e *EventsRepo) ToggleSaveEvent(ctx context.Context, userID, eventID int) (
 	return true, nil
 }
 
-func (e *EventsRepo) GetSavedEvents(ctx context.Context, userID int) ([]model.SavedEvents, error) {
-	query := `SELECT user_id, event_id, saved_at FROM event_saved WHERE user_id = $1`
+func (e *EventsRepo) GetSavedEvents(ctx context.Context, userID int) ([]dto.SavedEventResponse, error) {
+	query := `
+		SELECT es.user_id, es.event_id, es.saved_at, e.title, e.category, e.location, e.image_url, e.start_time, e.max_participants, COALESCE(count(ep.user_id),0) as total_participants
+		FROM event_saved es
+		join events e on es.event_id = e.id
+		join event_participants ep on es.event_id = ep.event_id 
+		WHERE es.user_id = $1
+		group by 
+			es.user_id, 
+			es.event_id, 
+			es.saved_at, 
+			e.title, 
+			e.category, 
+			e.location, 
+			e.image_url, 
+			e.start_time, 
+			e.max_participants;
+	`
 	rows, err := e.db.Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	savedEvents := make([]model.SavedEvents, 0)
+	savedEvents := make([]dto.SavedEventResponse, 0)
 	for rows.Next() {
-		var item model.SavedEvents
-		if err := rows.Scan(&item.User_Id, &item.Event_Id, &item.Saved_At); err != nil {
+		var item dto.SavedEventResponse
+		if err := rows.Scan(&item.UserID, &item.EventID, &item.SavedAt, &item.Title, &item.Category, &item.Location, &item.ImageURL, &item.StartTime, &item.MaxParticipants, &item.TotalParticipants); err != nil {
 			return nil, err
 		}
 		savedEvents = append(savedEvents, item)

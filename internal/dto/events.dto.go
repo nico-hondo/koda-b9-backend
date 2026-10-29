@@ -48,3 +48,16 @@ type SaveEventResponse struct {
 	EventID int  `json:"event_id"`
 	IsSaved bool `json:"is_saved"`
 }
+
+type SavedEventResponse struct {
+	UserID            int       `json:"user_id" db:"user_id"`
+	EventID           int       `json:"event_id" db:"event_id"`
+	SavedAt           time.Time `json:"saved_at" db:"saved_at"`
+	Title             string    `json:"title" db:"title"`
+	Category          string    `json:"category" db:"category"`
+	Location          string    `json:"location" db:"location"`
+	ImageURL          string    `json:"image_url" db:"image_url"`
+	StartTime         time.Time `json:"start_time" db:"start_time"`
+	MaxParticipants   int       `json:"max_participants" db:"max_participants"`
+	TotalParticipants int       `json:"total_participants" db:"total_participants"`
+}

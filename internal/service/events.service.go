@@ -168,6 +168,6 @@ func (es *EventsService) ToggleSaveEvent(ctx context.Context, userID, eventID in
 	}, nil
 }
 
-func (es *EventsService) GetSavedEvents(ctx context.Context, userID int) ([]model.SavedEvents, error) {
+func (es *EventsService) GetSavedEvents(ctx context.Context, userID int) ([]dto.SavedEventResponse, error) {
 	return es.er.GetSavedEvents(ctx, userID)
 }

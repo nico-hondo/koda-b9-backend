@@ -153,16 +153,3 @@ func (as *AuthService) ChangePassword(ctx context.Context, userID int, oldPasswo
 
 	return nil
 }
-
-func (as *AuthService) ChangeUserProfile(ctx context.Context, userId int, name, avatar_url, bio, loc, job, workplace string) error {
-	acc, err := as.ar.FindUserByID(ctx, userId)
-	if err != nil {
-		return apperror.ErrInternal
-	}
-
-	if err := as.ar.UpdateProfileUser(ctx, acc.Email, name, avatar_url, bio, loc, job, workplace); err != nil {
-		return apperror.ErrInternal
-	}
-
-	return nil
-}

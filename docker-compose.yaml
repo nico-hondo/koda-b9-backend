@@ -26,20 +26,17 @@ services:
     image: ghcr.io/nico-hondo/koda-b9-backend:latest
     container_name: eventhub-be
     restart: unless-stopped
-    env_file:
-      - ./.env
     environment:
       DBNAME: "koda-b9-database"
       DBHOST: pg-db
       DBPORT: "5432"
       RDB_ADDR: rdb
       RDB_PORT: "6379"
-      RDBHOST: rdb
-      RDBPORT: "6379"
       GODEBUG: "netdns=go"
+    env_file:
+      - ./.env
     volumes:
       - ./public:/app/public
-      - ./.env:/app/.env
     depends_on:
       pg-db:
         condition: service_healthy
@@ -52,10 +49,8 @@ services:
     image: postgres:16.15
     container_name: pg-db
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: nico
-      POSTGRES_PASSWORD: hondo123
-      POSTGRES_DB: koda-b9-database
+    env_file:
+    - ./.env
     ports:
       - "7001:5432"
     volumes:

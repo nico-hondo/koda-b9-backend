@@ -21,7 +21,6 @@ func initAuthRouter(r *gin.Engine, db *pgxpool.Pool, redisClient *redis.Client) 
 	authRouter.POST("/register", ah.Register)
 	authRouter.POST("/login", ah.Login)
 	authRouter.PATCH("/change-password", middleware.CheckToken, ah.ChangePassword)
-	authRouter.PATCH("/change-profile", middleware.CheckToken, ah.ChangeProfileUser)
 
 	protect := r.Group("/")
 	protect.Use(middleware.AuthMiddleware(redisClient, "YOUR_JWT_SECRET"))

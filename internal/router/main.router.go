@@ -18,11 +18,14 @@ func InitMainRouter(router *gin.Engine, db *pgxpool.Pool, redisClient *redis.Cli
 
 	router.GET("/documentation/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	router.Static("/img", "./public/img")
+
 	initAuthRouter(router, db, redisClient)
 	initNotifRouter(router, db, redisClient)
 	initTestimoniRouter(router, db)
 	initEventsRouter(router, db, redisClient)
 	initCommunityRouter(router, db)
+	initUserRouter(router, db)
 
 	router.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponse{
